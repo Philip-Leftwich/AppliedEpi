@@ -1,0 +1,73 @@
+---
+title: ""
+date: "`r Sys.Date()`"
+output:
+  rmdformats::robobook:
+    highlight: kate
+---
+
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(knitr)
+library(readxl)
+library(here)
+library(zoo) # rollmean function for integer windows
+library(lubridate) # work with date data
+library(ggmap)
+library(osmdata)
+library(plotly)
+
+## Global options
+options(max.print="75")
+opts_chunk$set(echo=FALSE,
+	             cache=TRUE,
+               prompt=FALSE,
+               tidy=TRUE,
+               comment=NA,
+               message=FALSE,
+               warning=FALSE)
+opts_knit$set(width=75)
+
+## Retrieve R objects
+
+source(here("scripts", "covid_example_cleaning_script.R"))
+
+```
+
+# Hospitalisation and Infection rates
+
+```{r}
+seven_day_rolling_data %>% 
+  ggplot(aes(x = pos_sampledt_FALSE,
+             y = rolling_avg,
+         fill = cases_vs_hospitalisation,
+         alpha = cases_vs_hospitalisation))+
+  geom_area(position = "identity")+
+  scale_alpha_manual(values = c(1, 0.2))
+```
+
+There have been `r descending_case_data[1,3]` recorded instances of COVID-19 in the last 7 days, There have been `r descending_case_data[2,3]` recorded hospitalisations.
+
+
+# Prevalent Symptoms
+
+The most prevalent symptoms repoorted in confirmed COVID-19 cases from the last 30 days
+
+```{r}
+covid_data %>% 
+  filter(between(pos_sampledt_FALSE, max_30, max)) %>% 
+  symptom_tracker() %>% 
+  symptom_plot()
+
+
+```
+
+# Case locations in the last seven days
+
+```{r}
+
+ggplotly(map, tooltip="text")
+
+
+```
