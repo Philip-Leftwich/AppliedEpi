@@ -1,0 +1,92 @@
+---
+title: "COVID-19 reporting dashboard"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::robobook:
+    highlight: kate
+---
+
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(knitr)
+library(here)
+
+## Global options
+options(max.print="75")
+
+opts_chunk$set(echo=FALSE,
+               prompt=FALSE,
+               tidy=TRUE,
+               comment=NA,
+               message=FALSE,
+               warning=FALSE)
+
+### Retrieve R objects
+source(here("scripts", "covid_example_cleaning_script.R"))
+
+
+
+
+```
+
+
+# New Cases and Hospital Admissions
+
+This dashboard was last updated on **`r as.Date(descending_case_data$pos_sampledt_FALSE)[1]`**
+
+There have been **`r descending_case_data[1,3]`** recorded cases of COVID-19 in the last 7 days; for the same period there have been **`r descending_case_data[2,3]`** recorded hospital admissions of COVID-19 confirmed patients.
+
+```{r, fig.width = 10, fig.asp = 0.618}
+Ribbon_plot
+```
+
+> I have chosen to present this data as a static ribbon plot of the cumulative number of cases and hospital admissions over a seven day rolling window. This covers the last 6 months of the linelist. Some hospital admission dates were clearly incorrect as they had 'future dates' and were excluded, in addition while all hospital admissions were accompanied by a positive case test - some of the date ranges were extremely far apart. As such hospital admission data has only been included if is within 30 days (before or after) a positive covid test. 
+
+> The Ribbon plot is facetted into two panels, with free y axes in order to be able to more clearly see hospital admissions data. 
+
+```{r}
+dashboard_table
+```
+
+> This dashboard shows both new cases and admissions, as well as the rolling seven day cumulative figures. 
+
+# Case locations in the last seven days
+
+Location data for each newly reported case of COVID-19 in the past 7 days.
+
+```{r}
+
+ggplotly(map, tooltip="text")
+
+
+```
+
+> This is an interactive map showing the locations recorded for each new case within the last seven days. With this data it is unclear whether the location indicates the location of the test, residence of the individual tested. As such I would be unable to draw conclusions at this stage - outbreaks may be associated with hospitals, schools or places of work - depending on what this data actually represents it could be unhelpful or potentially misleading. 
+
+# Demographics
+
+Percentage of positive coronavirus tests from the last 6 months distributed by race and ethnicity.
+
+```{r}
+race_ethnicity_table
+```
+
+Percentage of positive coronavirus tests from the last 6 months distributed by age and gender.
+
+```{r,   fig.width = 12, fig.asp = 0.618, fig.align = "center"}
+demographic_pyramid 
+```
+
+> This breaks down the data into various demographics, however without population density estimates, this data may simply represent a representative population rather than informative data on COVID-19 infections. 
+
+# Common symptoms of COVID-19
+
+The percentage of confirmed COVID-19 cases from the last 6 months reporting with the following symptoms
+
+```{r,  fig.width = 10, fig.asp = 0.618, fig.align = "center"}
+symptoms_plot
+
+```
+
+> New variants of SARS-CoV2 are associated with changing symptoms, this figure shows the most common symptoms reported for the last six months, and could be used to track changes in symptomatic case monitoring. 
