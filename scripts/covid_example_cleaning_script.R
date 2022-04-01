@@ -339,10 +339,9 @@ summary.table <- covid_data %>%
   mutate(`Race` = forcats::fct_relevel(`Race`, "Other", after = 6)) %>% 
   group_by(`Ethnicity`, `Race`) %>% 
   summarise(count = n()) %>% 
-  group_by(`Ethnicity`) %>% 
+  ungroup() %>% 
   mutate(per = count/sum(count)) %>% 
   drop_na(`Ethnicity`) %>% 
-  ungroup() %>% 
   pivot_wider(names_from = `Ethnicity`, values_from = c(count, per)) %>% 
   mutate(Race = replace_na(Race, "Unknown")) %>% 
   rename(`Hispanic/Latino (N)` = `count_Hispanic/Latino`,
@@ -360,14 +359,17 @@ race_ethnicity_table <- reactable(
                        align_bars = "right", 
                        text_position = "inside-end", 
                        number_fmt = scales::percent,
-                       force_outside = c(0,0.2))
+                       force_outside = c(0,0.2),
+                       max_value = 1)
     ),
     `Non-Hispanic/Latino (%)` = colDef(
       cell = data_bars(summary.table, 
                        align_bars = "left",
                        text_position = "inside-end",
                        number_fmt = scales::percent,
-                       force_outside = c(0,0.2)))))
+                       force_outside = c(0,0.2),
+                       max_value = 1)
+      )))
 
 
 ##### Demographic pyramid
